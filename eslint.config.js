@@ -1,9 +1,16 @@
 // @ts-nocheck
 import eslintPluginImport from "eslint-plugin-import";
 import eslintPluginPromise from "eslint-plugin-promise";
-import eslintPluginPrettier from "eslint-plugin-prettier";
 import * as tsParser from "@typescript-eslint/parser";
 import globals from "globals";
+
+const prettierConfig = {
+  trailingComma: "none",
+  semi: true,
+  singleQuote: false,
+  printWidth: 100,
+  tabWidth: 2
+};
 
 export default [
   {
@@ -13,17 +20,15 @@ export default [
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        ...globals.browser, // fixes fetch, console, URL, location, etc
+        ...globals.browser,
         ...globals.es2021
       }
     },
     plugins: {
       import: eslintPluginImport,
-      promise: eslintPluginPromise,
-      prettier: eslintPluginPrettier
+      promise: eslintPluginPromise
     },
     rules: {
-      "prettier/prettier": "error",
       "no-unused-vars": "warn",
       "no-undef": "error",
       "no-console": "off",
@@ -44,8 +49,16 @@ export default [
       "multiline-comment-style": "off"
     }
   },
-
-  // ignore files we don't want linted
+  {
+    files: ["scripts/**/*.cjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node
+      }
+    }
+  },
   {
     ignores: ["dist/", "node_modules/", "**/*.min.js", "eslint.config.js", "rollup.config.js"]
   }

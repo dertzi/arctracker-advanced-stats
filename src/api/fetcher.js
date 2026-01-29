@@ -1,5 +1,30 @@
 import { sleep } from "../utils/dom.js";
 
+// Mock mode - enabled for development builds
+const USE_MOCK_DATA = false; // Will be replaced by build config
+
+/**
+ * Load mock raid data from local file
+ * @returns {Promise<any[]>}
+ */
+async function loadMockData() {
+  try {
+    console.log("[ArcStats] Loading mock raid data...");
+    const response = await fetch("/test-data/mock-raids.json");
+    if (!response.ok) {
+      throw new Error("Mock data file not found");
+    }
+    const data = await response.json();
+    console.log(`[ArcStats] Loaded ${data.raids.length} mock raids`);
+    console.log(`[ArcStats] Mock data captured: ${data.metadata.capturedAt}`);
+    return data.raids;
+  } catch (error) {
+    console.error("[ArcStats] Failed to load mock ", error);
+    console.error("[ArcStats] Run 'npm run capture-data' to create mock data file");
+    return [];
+  }
+}
+
 /**
  * Build API URL with pagination offset
  * @param {string} baseURL
@@ -39,6 +64,11 @@ async function fetchRaidPage(url) {
  * @returns {Promise<any[]>}
  */
 export async function fetchAllRaids(baseURL) {
+  // Use mock data if enabled
+  if (USE_MOCK_DATA) {
+    return await loadMockData();
+  }
+
   console.log("[ArcStats] Fetching full raid history with filters:", baseURL);
 
   /** @type {any[]} */

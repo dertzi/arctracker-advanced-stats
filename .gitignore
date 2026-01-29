@@ -31,3 +31,10 @@ scripts/bump-version.js
 
 
 README.md
+# Feature backlog and development notes
+.backlog/
+
+# Mock testing data
+test-data/
+mock-raids.json
+*.raid-data.json
