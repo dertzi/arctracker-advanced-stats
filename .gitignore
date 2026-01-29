@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output (uncomment if you don't want to commit the built file)
+# dist/
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+
+# Husky
+.husky/_/
+
+# Temp scripts
+scripts/bump-version.js
+
+# VS Code SonarQube plugin
+**/.sonarlint/

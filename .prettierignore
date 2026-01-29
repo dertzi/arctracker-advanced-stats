@@ -1,0 +1,20 @@
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# IDE configs
+.vscode/
+.idea/
+
+# Rollup configuration
+rollup.config.js
+
+# Legacy files not in active dev
+original.js
+original/
+DESIGN.md
+
+# Don’t format userscript output (banner formatting can break)
+*.user.js

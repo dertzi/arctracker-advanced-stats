@@ -1,0 +1,47 @@
+{
+  "name": "arctracker-advanced-stats",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Enhanced statistics and visualizations for ArcTracker.io raid history",
+  "main": "dist/arctracker-advanced-stats.user.js",
+  "scripts": {
+    "build": "npm run bump-version && rollup -c",
+    "dev": "rollup -c -w",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run typecheck",
+    "prepare": "husky",
+    "bump-version": "node scripts/bump-version.js"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "keywords": [
+    "userscript",
+    "arctracker",
+    "statistics",
+    "violentmonkey"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-promise": "^7.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "replace-in-file": "^8.4.0",
+    "rollup": "^4.9.6",
+    "typescript": "^5.9.3"
+  }
+}
