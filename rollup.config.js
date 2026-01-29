@@ -4,7 +4,7 @@ import terser from "@rollup/plugin-terser";
 const banner = `// ==UserScript==
 // @name         ArcTracker Advanced Stats
 // @namespace    violentmonkey
-// @version      1.0.1
+// @version      1.0.3
 // @description  Full raid history stats, maps, charts, filter-sync, pagination, gains/losses for ArcTracker.
 // @match        https://arctracker.io/raid-history*
 // @grant        none

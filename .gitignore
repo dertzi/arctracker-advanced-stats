@@ -28,3 +28,6 @@ scripts/bump-version.js
 
 # VS Code SonarQube plugin
 **/.sonarlint/
+
+
+README.md

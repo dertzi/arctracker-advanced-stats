@@ -41,6 +41,124 @@ function sturgesBins(n) {
 }
 
 /**
+ * Adjust bin distribution to match target total
+ * @param {number} binNeg
+ * @param {number} binPos
+ * @param {number} binZero
+ * @param {number} totalBins
+ * @returns {{binNeg: number, binPos: number}}
+ */
+function adjustBinDistribution(binNeg, binPos, binZero, totalBins) {
+  const diff = binNeg + binPos + binZero - totalBins;
+
+  if (diff > 0) {
+    if (binPos > binNeg) return { binNeg, binPos: binPos - diff };
+    return { binNeg: binNeg - diff, binPos };
+  }
+
+  if (diff < 0) {
+    if (binPos > binNeg) return { binNeg, binPos: binPos + -diff };
+    return { binNeg: binNeg + -diff, binPos };
+  }
+
+  return { binNeg, binPos };
+}
+
+/**
+ * Create histogram buckets
+ * @param {number[]} negatives
+ * @param {number[]} positives
+ * @param {number} binNeg
+ * @param {number} binPos
+ * @param {number} stepNeg
+ * @param {number} stepPos
+ * @returns {Array<{min: number, max: number, values: number[], type: string}>}
+ */
+function createBuckets(negatives, positives, binNeg, binPos, stepNeg, stepPos) {
+  const buckets = [];
+
+  if (negatives.length > 0) {
+    const minNeg = Math.min(...negatives);
+    const maxNeg = Math.max(...negatives);
+    const negStep = (maxNeg - minNeg) / binNeg;
+
+    for (let i = 0; i < binNeg; i++) {
+      buckets.push({
+        min: niceRound(minNeg + i * negStep, stepNeg),
+        max: niceRound(minNeg + (i + 1) * negStep, stepNeg),
+        values: [],
+        type: "loss"
+      });
+    }
+  }
+
+  buckets.push({ min: 0, max: 0, values: [], type: "zero" });
+
+  if (positives.length > 0) {
+    const minPos = Math.min(...positives);
+    const maxPos = Math.max(...positives);
+    const posStep = (maxPos - minPos) / binPos;
+
+    for (let i = 0; i < binPos; i++) {
+      buckets.push({
+        min: niceRound(minPos + i * posStep, stepPos),
+        max: niceRound(minPos + (i + 1) * posStep, stepPos),
+        values: [],
+        type: "gain"
+      });
+    }
+  }
+
+  return buckets;
+}
+
+/**
+ * Distribute values into buckets
+ * @param {number[]} gains
+ * @param {Array<{min: number, max: number, values: number[], type: string}>} buckets
+ */
+function distributeValuesIntoBuckets(gains, buckets) {
+  for (const v of gains) {
+    for (const b of buckets) {
+      if (b.type === "zero" && v === 0) {
+        b.values.push(v);
+        break;
+      }
+      if (v >= b.min && v < b.max && b.type !== "zero") {
+        b.values.push(v);
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Calculate median of sorted values
+ * @param {number[]} values
+ * @returns {number}
+ */
+function calculateMedian(values) {
+  if (values.length === 0) return 0;
+  const sorted = values.slice().sort((a, c) => a - c);
+  return sorted[Math.floor(values.length / 2)];
+}
+
+/**
+ * Format bucket output
+ * @param {Array<{min: number, max: number, values: number[], type: string}>} buckets
+ * @returns {Array<{min: number, max: number, count: number, median: number, type: string}>}
+ */
+function formatBucketOutput(buckets) {
+  return buckets.map((b) => ({
+    min: b.min,
+    max: b.max,
+    count: b.values.length,
+    median: calculateMedian(b.values),
+    type: b.type
+  }));
+}
+
+/**
  * Build histogram bucket data from raids
  * @param {any[]} raids
  * @returns {Array<{min: number, max: number, count: number, median: number, type: string}>}
@@ -59,14 +177,9 @@ export function buildHistogramData(raids) {
   let binPos = Math.max(1, Math.round((positives.length / total) * (totalBins - 1)));
   const binZero = 1;
 
-  let diff = binNeg + binPos + binZero - totalBins;
-  if (diff > 0) {
-    if (binPos > binNeg) binPos -= diff;
-    else binNeg -= diff;
-  } else if (diff < 0) {
-    if (binPos > binNeg) binPos += -diff;
-    else binNeg += -diff;
-  }
+  const adjusted = adjustBinDistribution(binNeg, binPos, binZero, totalBins);
+  binNeg = adjusted.binNeg;
+  binPos = adjusted.binPos;
 
   const minNeg = Math.min(...negatives, 0);
   const maxNeg = Math.max(...negatives, 0);
@@ -76,54 +189,8 @@ export function buildHistogramData(raids) {
   const stepNeg = roundingStep(Math.abs(minNeg - maxNeg));
   const stepPos = roundingStep(Math.abs(maxPos - minPos));
 
-  /** @type {Array<{min: number, max: number, values: number[], type: string}>} */
-  const buckets = [];
-  if (negatives.length > 0) {
-    const negStep = (maxNeg - minNeg) / binNeg;
-    for (let i = 0; i < binNeg; i++) {
-      buckets.push({
-        min: niceRound(minNeg + i * negStep, stepNeg),
-        max: niceRound(minNeg + (i + 1) * negStep, stepNeg),
-        values: [],
-        type: "loss"
-      });
-    }
-  }
+  const buckets = createBuckets(negatives, positives, binNeg, binPos, stepNeg, stepPos);
+  distributeValuesIntoBuckets(gains, buckets);
 
-  buckets.push({ min: 0, max: 0, values: [], type: "zero" });
-
-  if (positives.length > 0) {
-    const posStep = (maxPos - minPos) / binPos;
-    for (let i = 0; i < binPos; i++) {
-      buckets.push({
-        min: niceRound(minPos + i * posStep, stepPos),
-        max: niceRound(minPos + (i + 1) * posStep, stepPos),
-        values: [],
-        type: "gain"
-      });
-    }
-  }
-
-  for (const v of gains) {
-    for (const b of buckets) {
-      if (b.type === "zero" && v === 0) {
-        b.values.push(v);
-        break;
-      }
-      if (v >= b.min && v < b.max && b.type !== "zero") {
-        b.values.push(v);
-        break;
-      }
-    }
-  }
-
-  return buckets.map((b) => ({
-    min: b.min,
-    max: b.max,
-    count: b.values.length,
-    median: b.values.length
-      ? b.values.slice().sort((a, c) => a - c)[Math.floor(b.values.length / 2)]
-      : 0,
-    type: b.type
-  }));
+  return formatBucketOutput(buckets);
 }

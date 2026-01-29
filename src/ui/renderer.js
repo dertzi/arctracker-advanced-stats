@@ -4,7 +4,24 @@ import { drawProfitChart } from "../charts/profit-chart/index.js";
 
 /** @type {HTMLElement | null} */
 let statsBlock = null;
-export let gridEnabled = true;
+
+let gridEnabled = true;
+
+/**
+ * Check if grid is enabled
+ * @returns {boolean}
+ */
+export function isGridEnabled() {
+  return gridEnabled;
+}
+
+/**
+ * Set grid enabled state
+ * @param {boolean} value
+ */
+export function setGridEnabled(value) {
+  gridEnabled = value;
+}
 
 /**
  * Render the stats UI
@@ -119,8 +136,8 @@ export function renderStatsUI(stats) {
   const toggle = document.getElementById("arcGridToggle");
   if (toggle) {
     toggle.onclick = () => {
-      gridEnabled = !gridEnabled;
-      toggle.textContent = "Grids: " + (gridEnabled ? "ON" : "OFF");
+      setGridEnabled(!isGridEnabled());
+      toggle.textContent = "Grids: " + (isGridEnabled() ? "ON" : "OFF");
       drawProfitChart(stats);
     };
   }

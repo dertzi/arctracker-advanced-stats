@@ -77,6 +77,17 @@ function drawHistogram(stats) {
 }
 
 /**
+ * Get type label for bucket
+ * @param {string} type
+ * @returns {string}
+ */
+function getTypeLabel(type) {
+  if (type === "loss") return "Loss";
+  if (type === "gain") return "Gain";
+  return "Zero";
+}
+
+/**
  * Enable hover interactivity for histogram
  * @param {any} canvas
  * @param {any} tooltip
@@ -110,7 +121,7 @@ function enableHistogramHover(canvas, tooltip) {
       labelRange = `${fmtRaw(b.min)} → ${fmtRaw(b.max)}`;
     }
 
-    const typeLabel = b.type === "loss" ? "Loss" : b.type === "gain" ? "Gain" : "Zero";
+    const typeLabel = getTypeLabel(b.type);
 
     tooltip.innerHTML = `
                 Range: ${labelRange}<br>

@@ -1,5 +1,5 @@
 import { fmtRaw } from "../../utils/dom.js";
-import { gridEnabled } from "../../ui/renderer.js";
+import { isGridEnabled } from "../../ui/renderer.js";
 
 import { mapX, mapY } from "./data.js";
 
@@ -22,7 +22,7 @@ export function drawChartBase(ctx, canvas, data, ranges, width, height) {
   const { min, max } = ranges;
   const gridCount = 4;
 
-  if (gridEnabled) {
+  if (isGridEnabled()) {
     ctx.strokeStyle = "rgba(255,255,255,0.10)";
     ctx.lineWidth = 1;
 
@@ -115,8 +115,8 @@ export function drawChartHighlights(ctx, canvas, data, ranges, width, height) {
 
   if (numericGains.length === 0) return;
 
-  const maxGain = numericGains.reduce((a, b) => (b.gain > a.gain ? b : a));
-  const maxLoss = numericGains.reduce((a, b) => (b.gain < a.gain ? b : a));
+  const maxGain = numericGains.reduce((a, b) => (b.gain > a.gain ? b : a), numericGains[0]);
+  const maxLoss = numericGains.reduce((a, b) => (b.gain < a.gain ? b : a), numericGains[0]);
 
   /**
    * Draw a marker at a specific point
