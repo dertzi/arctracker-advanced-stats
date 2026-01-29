@@ -34,7 +34,7 @@ export function renderStatsUI(stats) {
   if (!statsBlock) {
     statsBlock = document.createElement("div");
     statsBlock.id = "arcStatsBlock";
-    statsBlock.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4";
+    statsBlock.className = "space-y-3 mb-4";
     container.insertBefore(statsBlock, container.children[1]);
   }
 
@@ -46,26 +46,54 @@ export function renderStatsUI(stats) {
     .join("");
 
   statsBlock.innerHTML = `
-            <div class="rounded-lg border bg-card p-3">
-                <div class="text-xs text-muted-foreground mb-1">Total Profit</div>
-                <div class="text-xl font-bold ${stats.totalProfit >= 0 ? "text-green-500" : "text-red-500"}">
-                    ${fmtRaw(stats.totalProfit)}
+            <!-- ROW 1: Combined Stats (75%) + Raid Summary (25%) -->
+            <div class="arc-row-4cols">
+                <!-- COMBINED STATS CARD (75% width = 3/4 columns) -->
+                <div class="arc-span-3 rounded-lg border bg-card p-3">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <!-- Total Profit Section -->
+                        <div class="flex-1">
+                            <div class="text-xs text-muted-foreground mb-1">Total Profit</div>
+                            <div class="text-xl font-bold ${stats.totalProfit >= 0 ? "text-green-500" : "text-red-500"}">
+                                ${fmtRaw(stats.totalProfit)}
+                            </div>
+                        </div>
+                        
+                        <!-- Averages Section -->
+                        <div class="flex-1">
+                            <div class="text-xs text-muted-foreground mb-1">Averages</div>
+                            <div class="text-sm">Per Raid: <b>${fmtRaw(stats.avgPerRaid)}</b></div>
+                            <div class="text-sm">Per Survive: <b>${fmtRaw(stats.avgPerSurvive)}</b></div>
+                            <div class="text-sm">Per Day: <b>${fmtRaw(stats.profitPerDay)}</b></div>
+                        </div>
+                        
+                        <!-- Top Gains & Losses Section -->
+                        <div class="flex-1">
+                            <div class="flex flex-row gap-4">
+                                <div class="flex-1">
+                                    <div class="text-xs text-muted-foreground mb-1">Top 5 Gains</div>
+                                    ${topGains}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-muted-foreground mb-1">Top 5 Losses</div>
+                                    ${topLosses}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- RAID SUMMARY CARD (25% width = 1/4 columns) -->
+                <div class="arc-span-1 rounded-lg border bg-card p-3">
+                    <div class="text-xs text-muted-foreground mb-1">Raid Summary</div>
+                    <div class="text-sm">Total: <b>${stats.totalRaids}</b></div>
+                    <div class="text-sm text-green-500">Survived: <b>${stats.totalSurvived}</b></div>
+                    <div class="text-sm text-red-500">KIA: <b>${stats.totalKIA}</b></div>
                 </div>
             </div>
+            
+            <!-- ROW 2: PROFIT CHART (Full width) -->
             <div class="rounded-lg border bg-card p-3">
-                <div class="text-xs text-muted-foreground mb-1">Raid Summary</div>
-                <div class="text-sm">Total: <b>${stats.totalRaids}</b></div>
-                <div class="text-sm text-green-500">Survived: <b>${stats.totalSurvived}</b></div>
-                <div class="text-sm text-red-500">KIA: <b>${stats.totalKIA}</b></div>
-            </div>
-            <div class="rounded-lg border bg-card p-3">
-                <div class="text-xs text-muted-foreground mb-1">Averages</div>
-                <div class="text-sm">Per Raid: <b>${fmtRaw(stats.avgPerRaid)}</b></div>
-                <div class="text-sm">Per Survive: <b>${fmtRaw(stats.avgPerSurvive)}</b></div>
-                <div class="text-sm">Per Day: <b>${fmtRaw(stats.profitPerDay)}</b></div>
-            </div>
-            <!-- PROFIT CHART -->
-            <div class="rounded-lg border bg-card p-3 md:col-span-2 lg:col-span-3">
                 <div class="flex justify-between items-center mb-2">
                     <div class="text-xs text-muted-foreground">Profit Chart</div>
                     <button id="arcGridToggle" class="text-[10px] px-2 py-1 border rounded hover:bg-accent">
@@ -88,47 +116,42 @@ export function renderStatsUI(stats) {
                     </div>
                 </div>
             </div>
-            <!-- NEW MAP STATS CARD (FULL WIDTH, AFTER PROFIT CHART) -->
-            <div class="rounded-lg border bg-card p-3 md:col-span-2 lg:col-span-3">
-                <div class="text-xs text-muted-foreground mb-3">Map Stats</div>
-                <div class="grid grid-cols-[2fr,1fr,2fr,1fr,1fr] text-[11px] font-semibold text-muted-foreground mb-2">
-                    <div>MAP</div>
-                    <div class="text-right">PROFIT</div>
-                    <div class="text-center">SURVIVAL</div>
-                    <div class="text-right">RAIDS</div>
-                    <div class="text-right">SURVIVED</div>
-                </div>
-                <div id="arcMapStatsRows" class="space-y-1"></div>
-            </div>
-            <!-- TOP GAINS -->
-            <div class="rounded-lg border bg-card p-3">
-                <div class="text-xs text-muted-foreground mb-1">Top 5 Gains</div>
-                ${topGains}
-            </div>
-            <!-- TOP LOSSES -->
-            <div class="rounded-lg border bg-card p-3">
-                <div class="text-xs text-muted-foreground mb-1">Top 5 Losses</div>
-                ${topLosses}
-            </div>
-            <!-- HISTOGRAM -->
-            <div class="rounded-lg border bg-card p-3 md:col-span-2 lg:col-span-3">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="text-xs text-muted-foreground">Profit Distribution</div>
-                </div>
-                <div style="position:relative;">
-                    <canvas id="arcHistogram" style="width:100%; height:180px;"></canvas>
-                    <div id="arcHistTooltip"
-                        style="
-                            position:absolute;
-                            padding:4px 6px;
-                            background:#0009;
-                            color:white;
-                            font-size:11px;
-                            pointer-events:none;
-                            border-radius:4px;
-                            display:none;
-                        ">
+            
+            <!-- ROW 3: Histogram (50%) + Map Stats (50%) -->
+            <div class="arc-row-2cols">
+                <!-- HISTOGRAM (50% width = 1/2 columns) -->
+                <div class="arc-span-1 rounded-lg border bg-card p-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="text-xs text-muted-foreground">Profit Distribution</div>
                     </div>
+                    <div style="position:relative;">
+                        <canvas id="arcHistogram" style="width:100%; height:180px;"></canvas>
+                        <div id="arcHistTooltip"
+                            style="
+                                position:absolute;
+                                padding:4px 6px;
+                                background:#0009;
+                                color:white;
+                                font-size:11px;
+                                pointer-events:none;
+                                border-radius:4px;
+                                display:none;
+                            ">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- MAP STATS (50% width = 1/2 columns) -->
+                <div class="arc-span-1 rounded-lg border bg-card p-3">
+                    <div class="text-xs text-muted-foreground mb-3">Map Stats</div>
+                    <div class="text-[11px] font-semibold text-muted-foreground mb-2" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 0.5rem;">
+                        <div>MAP</div>
+                        <div class="text-right">PROFIT</div>
+                        <div class="text-right">SURVIVAL</div>
+                        <div class="text-right">RAIDS</div>
+                        <div class="text-right">SURVIVED</div>
+                    </div>
+                    <div id="arcMapStatsRows" class="space-y-1"></div>
                 </div>
             </div>
         `;
@@ -159,13 +182,13 @@ function renderMapStatsRows(stats) {
   container.innerHTML = sorted
     .map((/** @type {any} */ m) => {
       const profitColor = m.profit >= 0 ? "text-green-500" : "text-red-500";
-      let barColor = "bg-red-500";
-      if (m.survivalRate > 0.7) barColor = "bg-green-500";
-      else if (m.survivalRate > 0.5) barColor = "bg-yellow-400";
+      let survivalColor = "text-red-500";
+      if (m.survivalRate > 0.7) survivalColor = "text-green-500";
+      else if (m.survivalRate > 0.5) survivalColor = "text-yellow-400";
       const srPct = Math.round(m.survivalRate * 100);
 
       return `
-            <div class="grid grid-cols-[2fr,1fr,2fr,1fr,1fr] items-center py-1 border-b border-muted/20">
+            <div class="items-center py-1 border-b border-muted/20" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 0.5rem;">
 
                 <!-- MAP NAME -->
                 <div class="text-sm">${m.name}</div>
@@ -175,12 +198,9 @@ function renderMapStatsRows(stats) {
                     ${m.profit >= 0 ? "+" : ""}${fmtRaw(m.profit)}
                 </div>
 
-                <!-- SURVIVAL BAR + PERCENT -->
-                <div class="px-2">
-                    <div class="w-full h-2 bg-muted rounded overflow-hidden">
-                        <div class="h-full ${barColor}" style="width: ${srPct}%;"></div>
-                    </div>
-                    <div class="text-[10px] text-center mt-1">${srPct}%</div>
+                <!-- SURVIVAL PERCENTAGE -->
+                <div class="text-sm text-right font-semibold ${survivalColor}">
+                    ${srPct}%
                 </div>
 
                 <!-- RAIDS -->

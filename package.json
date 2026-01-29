@@ -1,6 +1,6 @@
 {
   "name": "arctracker-advanced-stats",
-  "version": "1.0.3",
+  "version": "1.0.15",
   "type": "module",
   "description": "Enhanced statistics and visualizations for ArcTracker.io raid history",
   "main": "dist/arctracker-advanced-stats.user.js",
