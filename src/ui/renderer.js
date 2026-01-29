@@ -2,9 +2,14 @@ import { fmtRaw, getMainCardContainer } from "../utils/dom.js";
 import { sortMapStats } from "../stats/engine.js";
 import { drawProfitChart } from "../charts/profit-chart/index.js";
 
+/** @type {HTMLElement | null} */
 let statsBlock = null;
 export let gridEnabled = true;
 
+/**
+ * Render the stats UI
+ * @param {any} stats
+ */
 export function renderStatsUI(stats) {
   const container = getMainCardContainer();
   if (!container) return;
@@ -17,10 +22,10 @@ export function renderStatsUI(stats) {
   }
 
   const topGains = stats.biggestGains
-    .map((v) => `<div class="text-sm text-green-500">+${fmtRaw(v)}</div>`)
+    .map((/** @type {number} */ v) => `<div class="text-sm text-green-500">+${fmtRaw(v)}</div>`)
     .join("");
   const topLosses = stats.biggestLosses
-    .map((v) => `<div class="text-sm text-red-500">${fmtRaw(v)}</div>`)
+    .map((/** @type {number} */ v) => `<div class="text-sm text-red-500">${fmtRaw(v)}</div>`)
     .join("");
 
   statsBlock.innerHTML = `
@@ -112,16 +117,22 @@ export function renderStatsUI(stats) {
         `;
 
   const toggle = document.getElementById("arcGridToggle");
-  toggle.onclick = () => {
-    gridEnabled = !gridEnabled;
-    toggle.textContent = "Grids: " + (gridEnabled ? "ON" : "OFF");
-    drawProfitChart(stats);
-  };
+  if (toggle) {
+    toggle.onclick = () => {
+      gridEnabled = !gridEnabled;
+      toggle.textContent = "Grids: " + (gridEnabled ? "ON" : "OFF");
+      drawProfitChart(stats);
+    };
+  }
 
   drawProfitChart(stats);
   renderMapStatsRows(stats);
 }
 
+/**
+ * Render map statistics rows
+ * @param {any} stats
+ */
 function renderMapStatsRows(stats) {
   const container = document.getElementById("arcMapStatsRows");
   if (!container) return;
@@ -129,7 +140,7 @@ function renderMapStatsRows(stats) {
   const sorted = sortMapStats(stats.mapStatsArray);
 
   container.innerHTML = sorted
-    .map((m) => {
+    .map((/** @type {any} */ m) => {
       const profitColor = m.profit >= 0 ? "text-green-500" : "text-red-500";
       let barColor = "bg-red-500";
       if (m.survivalRate > 0.7) barColor = "bg-green-500";

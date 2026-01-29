@@ -1,11 +1,22 @@
 import { sleep } from "../utils/dom.js";
 
+/**
+ * Build API URL with pagination offset
+ * @param {string} baseURL
+ * @param {number} newOffset
+ * @returns {string}
+ */
 function buildPageURL(baseURL, newOffset) {
   const url = new URL(baseURL, location.origin);
-  url.searchParams.set("offset", newOffset);
+  url.searchParams.set("offset", String(newOffset));
   return url.toString();
 }
 
+/**
+ * Fetch a single page of raid data
+ * @param {string} url
+ * @returns {Promise<{raids: any[], pagination: {hasMore: boolean}}>}
+ */
 async function fetchRaidPage(url) {
   try {
     const res = await fetch(url, {
@@ -22,9 +33,15 @@ async function fetchRaidPage(url) {
   }
 }
 
+/**
+ * Fetch all raid pages with pagination
+ * @param {string} baseURL
+ * @returns {Promise<any[]>}
+ */
 export async function fetchAllRaids(baseURL) {
   console.log("[ArcStats] Fetching full raid history with filters:", baseURL);
 
+  /** @type {any[]} */
   let all = [];
   let offset = 0;
   const limit = 20;

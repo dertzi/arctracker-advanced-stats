@@ -1,10 +1,21 @@
+/**
+ * Extract raid value with fallback to N/A
+ * @param {any} raid
+ * @returns {number | string}
+ */
 export function getRaidValue(raid) {
   if (typeof raid.totalValueOverride === "number") return raid.totalValueOverride;
   if (typeof raid.effectiveValue === "number") return raid.effectiveValue;
   return "N/A";
 }
 
+/**
+ * Prepare chart data from raids (oldest to newest)
+ * @param {any[]} raids
+ * @returns {Array<{cumulative: number, gain: number | string, index: number}>}
+ */
 export function prepareChartData(raids) {
+  /** @type {Array<{cumulative: number, gain: number | string, index: number}>} */
   const data = [];
   let cumulative = 0;
 
@@ -29,6 +40,11 @@ export function prepareChartData(raids) {
   return data;
 }
 
+/**
+ * Compute min/max ranges for chart
+ * @param {any[]} data
+ * @returns {{min: number, max: number, range: number}}
+ */
 export function computeChartRanges(data) {
   let minV = Infinity;
   let maxV = -Infinity;
@@ -50,11 +66,25 @@ export function computeChartRanges(data) {
   };
 }
 
+/**
+ * Map data value to Y coordinate
+ * @param {number} value
+ * @param {{min: number, range: number}} ranges
+ * @param {number} height
+ * @returns {number}
+ */
 export function mapY(value, ranges, height) {
   const { min, range } = ranges;
   return height - ((value - min) / range) * height;
 }
 
+/**
+ * Map data index to X coordinate
+ * @param {number} index
+ * @param {number} total
+ * @param {number} width
+ * @returns {number}
+ */
 export function mapX(index, total, width) {
   if (total <= 1) return 0;
   return (index / (total - 1)) * width;

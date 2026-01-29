@@ -3,6 +3,15 @@ import { gridEnabled } from "../../ui/renderer.js";
 
 import { mapX, mapY } from "./data.js";
 
+/**
+ * Draw chart base (grid, axes, labels)
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {any} canvas
+ * @param {any[]} data
+ * @param {{min: number, max: number, range: number}} ranges
+ * @param {number} width
+ * @param {number} height
+ */
 export function drawChartBase(ctx, canvas, data, ranges, width, height) {
   ctx.clearRect(0, 0, width, height);
 
@@ -41,6 +50,15 @@ export function drawChartBase(ctx, canvas, data, ranges, width, height) {
   ctx.fillText(fmtRaw(min), 4, height - 4);
 }
 
+/**
+ * Draw chart lines and fill area
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {any} canvas
+ * @param {any[]} data
+ * @param {{min: number, max: number, range: number}} ranges
+ * @param {number} width
+ * @param {number} height
+ */
 export function drawChartLines(ctx, canvas, data, ranges, width, height) {
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -81,6 +99,15 @@ export function drawChartLines(ctx, canvas, data, ranges, width, height) {
   }
 }
 
+/**
+ * Draw highlight markers for biggest gain/loss
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {any} canvas
+ * @param {any[]} data
+ * @param {{min: number, max: number, range: number}} ranges
+ * @param {number} width
+ * @param {number} height
+ */
 export function drawChartHighlights(ctx, canvas, data, ranges, width, height) {
   const numericGains = data
     .map((d, i) => ({ gain: d.gain, index: i, cumulative: d.cumulative }))
@@ -91,6 +118,11 @@ export function drawChartHighlights(ctx, canvas, data, ranges, width, height) {
   const maxGain = numericGains.reduce((a, b) => (b.gain > a.gain ? b : a));
   const maxLoss = numericGains.reduce((a, b) => (b.gain < a.gain ? b : a));
 
+  /**
+   * Draw a marker at a specific point
+   * @param {any} pt
+   * @param {string} color
+   */
   function drawMarker(pt, color) {
     const x = mapX(pt.index, data.length, width);
     const y = mapY(pt.cumulative, ranges, height);

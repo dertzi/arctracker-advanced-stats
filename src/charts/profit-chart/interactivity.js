@@ -1,7 +1,12 @@
 import { fmtRaw } from "../../utils/dom.js";
 
-import { mapX } from "./data.js";
-
+/**
+ * Find nearest data point to mouse X position
+ * @param {number} mouseX
+ * @param {any[]} data
+ * @param {number} width
+ * @returns {number}
+ */
 export function findNearestPoint(mouseX, data, width) {
   const total = data.length;
   if (total <= 1) return 0;
@@ -9,13 +14,20 @@ export function findNearestPoint(mouseX, data, width) {
   return Math.max(0, Math.min(total - 1, guess));
 }
 
+/**
+ * Enable hover interactivity for profit chart
+ * @param {any} canvas
+ * @param {any} tooltip
+ * @param {any} stats
+ * @param {Function} drawFunction
+ */
 export function enableChartHover(canvas, tooltip, stats, drawFunction) {
   const data = canvas._chartData;
   const ranges = canvas._chartRanges;
 
   if (!data || !ranges) return;
 
-  canvas.onmousemove = (ev) => {
+  canvas.onmousemove = (/** @type {MouseEvent} */ ev) => {
     const rect = canvas.getBoundingClientRect();
     const x = ev.clientX - rect.left;
     const y = ev.clientY - rect.top;

@@ -4,7 +4,7 @@ import terser from "@rollup/plugin-terser";
 const banner = `// ==UserScript==
 // @name         ArcTracker Advanced Stats
 // @namespace    violentmonkey
-// @version      1.0
+// @version      1.0.1
 // @description  Full raid history stats, maps, charts, filter-sync, pagination, gains/losses for ArcTracker.
 // @match        https://arctracker.io/raid-history*
 // @grant        none
@@ -16,7 +16,6 @@ export default {
   output: {
     file: "dist/arctracker-advanced-stats.user.js",
     format: "iife",
-    banner,
     compact: false
   },
   treeshake: {
@@ -33,7 +32,8 @@ export default {
     nodeResolve(),
     terser({
       format: {
-        comments: /UserScript/
+        preamble: banner,
+        comments: false
       }
     })
   ]

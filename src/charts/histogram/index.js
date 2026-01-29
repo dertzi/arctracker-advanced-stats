@@ -2,15 +2,19 @@ import { fmtRaw } from "../../utils/dom.js";
 
 import { buildHistogramData } from "./data.js";
 
+/**
+ * Draw the histogram chart
+ * @param {any} stats
+ */
 function drawHistogram(stats) {
   const raids = stats._rawRaidList;
   if (!raids || raids.length === 0) return;
 
-  const canvas = document.getElementById("arcHistogram");
-  const tooltip = document.getElementById("arcHistTooltip");
+  const canvas = /** @type {HTMLCanvasElement | null} */ (document.getElementById("arcHistogram"));
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
@@ -22,7 +26,9 @@ function drawHistogram(stats) {
   const buckets = buildHistogramData(raids);
   if (!buckets || buckets.length === 0) return;
 
+  // @ts-ignore - Adding custom properties to canvas
   canvas._histBuckets = buckets;
+  // @ts-ignore - Adding custom properties to canvas
   canvas._histBucketsRaw = raids;
 
   const maxCount = Math.max(...buckets.map((b) => b.count), 1);
@@ -70,6 +76,11 @@ function drawHistogram(stats) {
   });
 }
 
+/**
+ * Enable hover interactivity for histogram
+ * @param {any} canvas
+ * @param {any} tooltip
+ */
 function enableHistogramHover(canvas, tooltip) {
   const buckets = canvas._histBuckets;
   if (!buckets || buckets.length === 0) return;
@@ -78,7 +89,7 @@ function enableHistogramHover(canvas, tooltip) {
   const height = canvas.height;
   const barWidth = width / buckets.length;
 
-  canvas.onmousemove = (ev) => {
+  canvas.onmousemove = (/** @type {MouseEvent} */ ev) => {
     const rect = canvas.getBoundingClientRect();
     const x = ev.clientX - rect.left;
 
@@ -139,6 +150,10 @@ function enableHistogramHover(canvas, tooltip) {
   };
 }
 
+/**
+ * Render the histogram chart
+ * @param {any} stats
+ */
 export function renderHistogram(stats) {
   const canvas = document.getElementById("arcHistogram");
   if (!canvas) return;

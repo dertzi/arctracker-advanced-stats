@@ -1,6 +1,24 @@
 import { toDate } from "../utils/dom.js";
 import { MAP_NAMES } from "../utils/constants.js";
 
+/**
+ * Compute statistics from raid data
+ * @param {any[]} raids
+ * @returns {{
+ *   totalProfit: number,
+ *   totalRaids: number,
+ *   totalSurvived: number,
+ *   totalKIA: number,
+ *   avgPerRaid: number,
+ *   avgPerSurvive: number,
+ *   profitPerDay: number,
+ *   days: number,
+ *   cumulative: number[],
+ *   mapStatsArray: any[],
+ *   biggestGains: number[],
+ *   biggestLosses: number[]
+ * }}
+ */
 export function computeStats(raids) {
   if (!raids || raids.length === 0) {
     return {
@@ -22,9 +40,12 @@ export function computeStats(raids) {
   let totalProfit = 0;
   let totalSurvived = 0;
   let totalKIA = 0;
+  /** @type {Date | null} */
   let earliest = null;
+  /** @type {Date | null} */
   let latest = null;
 
+  /** @type {Record<string, {name: string, raids: number, survived: number, profit: number}>} */
   const mapStats = {};
   for (const id in MAP_NAMES) {
     mapStats[id] = {
@@ -35,6 +56,7 @@ export function computeStats(raids) {
     };
   }
 
+  /** @type {number[]} */
   const profits = [];
 
   raids.forEach((r) => {
@@ -69,6 +91,7 @@ export function computeStats(raids) {
     }
   });
 
+  /** @type {number[]} */
   const cumulative = [];
   let run = 0;
   profits.forEach((p) => {
@@ -120,6 +143,11 @@ export function computeStats(raids) {
   };
 }
 
+/**
+ * Sort map stats by profit, then survival rate, then raids
+ * @param {any[]} list
+ * @returns {any[]}
+ */
 export function sortMapStats(list) {
   return list.slice().sort((a, b) => {
     if (b.profit !== a.profit) return b.profit - a.profit;

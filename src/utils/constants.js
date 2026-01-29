@@ -1,4 +1,5 @@
 // Map names for UI display
+/** @type {Record<string, string>} */
 export const MAP_NAMES = {
   "dam-battleground": "Dam Battleground",
   "the-spaceport": "Spaceport",

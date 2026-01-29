@@ -1,13 +1,29 @@
+/**
+ * Extract gain/loss value from raid
+ * @param {any} raid
+ * @returns {number}
+ */
 function extractGainValue(raid) {
   if (typeof raid.totalValueOverride === "number") return raid.totalValueOverride;
   if (typeof raid.effectiveValue === "number") return raid.effectiveValue;
   return 0;
 }
 
+/**
+ * Round value to nice step
+ * @param {number} value
+ * @param {number} step
+ * @returns {number}
+ */
 function niceRound(value, step) {
   return Math.round(value / step) * step;
 }
 
+/**
+ * Calculate rounding step based on range
+ * @param {number} range
+ * @returns {number}
+ */
 function roundingStep(range) {
   if (range < 20000) return 500;
   if (range < 80000) return 1000;
@@ -15,16 +31,25 @@ function roundingStep(range) {
   return 5000;
 }
 
+/**
+ * Calculate optimal number of bins using Sturges' formula
+ * @param {number} n
+ * @returns {number}
+ */
 function sturgesBins(n) {
   return Math.max(4, Math.min(15, Math.ceil(Math.log2(n) + 1)));
 }
 
+/**
+ * Build histogram bucket data from raids
+ * @param {any[]} raids
+ * @returns {Array<{min: number, max: number, count: number, median: number, type: string}>}
+ */
 export function buildHistogramData(raids) {
   if (!raids || raids.length === 0) return [];
 
   const gains = raids.map(extractGainValue);
   const negatives = gains.filter((g) => g < 0);
-  const zeros = gains.filter((g) => g === 0);
   const positives = gains.filter((g) => g > 0);
 
   const total = gains.length;
@@ -51,6 +76,7 @@ export function buildHistogramData(raids) {
   const stepNeg = roundingStep(Math.abs(minNeg - maxNeg));
   const stepPos = roundingStep(Math.abs(maxPos - minPos));
 
+  /** @type {Array<{min: number, max: number, values: number[], type: string}>} */
   const buckets = [];
   if (negatives.length > 0) {
     const negStep = (maxNeg - minNeg) / binNeg;
