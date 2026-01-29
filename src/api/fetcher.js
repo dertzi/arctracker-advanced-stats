@@ -1,4 +1,5 @@
 import { sleep } from "../utils/dom.js";
+import { getCachedRaids, setCachedRaids } from "../utils/cache.js";
 
 // Mock mode - enabled for development builds
 const USE_MOCK_DATA = false; // Will be replaced by build config
@@ -59,16 +60,26 @@ async function fetchRaidPage(url) {
 }
 
 /**
- * Fetch all raid pages with pagination
+ * Fetch all raid pages with pagination (with caching)
  * @param {string} baseURL
+ * @param {boolean} forceRefresh - Skip cache and fetch fresh data
  * @returns {Promise<any[]>}
  */
-export async function fetchAllRaids(baseURL) {
+export async function fetchAllRaids(baseURL, forceRefresh = false) {
   // Use mock data if enabled
   if (USE_MOCK_DATA) {
     return await loadMockData();
   }
 
+  // Try cache first (unless force refresh)
+  if (!forceRefresh) {
+    const cached = getCachedRaids(baseURL);
+    if (cached) {
+      return cached;
+    }
+  }
+
+  // Fetch from API
   console.log("[ArcStats] Fetching full raid history with filters:", baseURL);
 
   /** @type {any[]} */
@@ -91,5 +102,9 @@ export async function fetchAllRaids(baseURL) {
   }
 
   console.log(`[ArcStats] Loaded ${all.length} total raids.`);
+
+  // Cache the results
+  setCachedRaids(baseURL, all);
+
   return all;
 }

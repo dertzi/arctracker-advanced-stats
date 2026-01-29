@@ -1,6 +1,7 @@
 import { fmtRaw, getMainCardContainer } from "../utils/dom.js";
 import { sortMapStats } from "../stats/engine.js";
 import { drawProfitChart } from "../charts/profit-chart/index.js";
+import { getCacheStatus, clearCache } from "../utils/cache.js";
 
 /** @type {HTMLElement | null} */
 let statsBlock = null;
@@ -89,6 +90,20 @@ export function renderStatsUI(stats) {
                     <div class="text-sm">Total: <b>${stats.totalRaids}</b></div>
                     <div class="text-sm text-green-500">Survived: <b>${stats.totalSurvived}</b></div>
                     <div class="text-sm text-red-500">KIA: <b>${stats.totalKIA}</b></div>
+                    
+                    <!-- Dev Tools Section -->
+                    <div class="mt-3 pt-3 border-t border-muted/20">
+                        <div class="text-xs text-muted-foreground mb-2">Dev Tools</div>
+                        <div class="flex gap-1">
+                            <button id="arcExportBtn" class="text-[10px] px-2 py-1 border rounded hover:bg-accent flex-1" title="Export data for development">
+                                💾 Export
+                            </button>
+                            <button id="arcRefreshBtn" class="text-[10px] px-2 py-1 border rounded hover:bg-accent flex-1" title="Clear cache & refresh">
+                                🔄 Refresh
+                            </button>
+                        </div>
+                        <div id="arcCacheStatus" class="text-[10px] text-muted-foreground mt-1"></div>
+                    </div>
                 </div>
             </div>
             
@@ -165,8 +180,79 @@ export function renderStatsUI(stats) {
     };
   }
 
+  // Setup export button
+  const exportBtn = document.getElementById("arcExportBtn");
+  if (exportBtn) {
+    exportBtn.onclick = () => exportMockData(stats);
+  }
+
+  // Setup refresh button
+  const refreshBtn = document.getElementById("arcRefreshBtn");
+  if (refreshBtn) {
+    refreshBtn.onclick = () => {
+      clearCache();
+      updateCacheStatus();
+      window.location.reload();
+    };
+  }
+
+  // Update cache status display
+  updateCacheStatus();
+
   drawProfitChart(stats);
   renderMapStatsRows(stats);
+}
+
+/**
+ * Export raid data as JSON for development/testing
+ * @param {any} stats
+ */
+function exportMockData(stats) {
+  const mockData = {
+    metadata: {
+      capturedAt: new Date().toISOString(),
+      totalRaids: stats.totalRaids,
+      dateRange: stats.days
+        ? {
+            earliest: new Date(Date.now() - stats.days * 86400000).toISOString(),
+            latest: new Date().toISOString()
+          }
+        : null,
+      note: "Exported raid data for development/testing. Save to test-data/mock-raids.json"
+    },
+    raids: stats._rawRaidList || []
+  };
+
+  // Create and trigger download
+  const blob = new Blob([JSON.stringify(mockData, null, 2)], {
+    type: "application/json"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mock-raids.json";
+  a.click();
+  URL.revokeObjectURL(url);
+
+  console.log("[ArcStats] Exported", mockData.raids.length, "raids");
+}
+
+/**
+ * Update cache status display
+ */
+function updateCacheStatus() {
+  const statusEl = document.getElementById("arcCacheStatus");
+  if (!statusEl) return;
+
+  const cacheStatus = getCacheStatus();
+  if (cacheStatus.exists && cacheStatus.age !== null) {
+    const ageMinutes = Math.round(cacheStatus.age / 60000);
+    statusEl.textContent = `⚡ Cached (${ageMinutes}m ago)`;
+    statusEl.className = "text-[10px] text-green-500 mt-1";
+  } else {
+    statusEl.textContent = "📡 No cache";
+    statusEl.className = "text-[10px] text-muted-foreground mt-1";
+  }
 }
 
 /**

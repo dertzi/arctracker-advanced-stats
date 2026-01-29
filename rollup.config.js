@@ -5,7 +5,7 @@ import replace from "@rollup/plugin-replace";
 const banner = `// ==UserScript==
 // @name         ArcTracker Advanced Stats
 // @namespace    violentmonkey
-// @version      1.0.16
+// @version      1.0.17
 // @description  Full raid history stats, maps, charts, filter-sync, pagination, gains/losses for ArcTracker.
 // @match        https://arctracker.io/raid-history*
 // @grant        none

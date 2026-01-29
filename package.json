@@ -1,6 +1,6 @@
 {
   "name": "arctracker-advanced-stats",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "type": "module",
   "description": "Enhanced statistics and visualizations for ArcTracker.io raid history",
   "main": "dist/arctracker-advanced-stats.user.js",
@@ -12,8 +12,7 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck",
     "prepare": "husky",
-    "bump-version": "node scripts/bump-version.js",
-    "capture-data": "node scripts/capture-raid-data.cjs"
+    "bump-version": "node scripts/bump-version.js"
   },
   "lint-staged": {
     "*.js": [
