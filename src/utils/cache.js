@@ -56,7 +56,7 @@ export function setCachedRaids(apiUrl, raids) {
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
       } catch (retryError) {
-        console.error("[ArcStats] Cache write failed even after clearing");
+        console.error("[ArcStats] Cache write failed even after clearing:", retryError);
       }
     }
   }
@@ -90,6 +90,7 @@ export function getCacheStatus() {
       raidCount: data?.length || 0
     };
   } catch (error) {
+    console.error("[ArcStats] Cache status check error:", error);
     return { exists: false, age: null, raidCount: null };
   }
 }

@@ -192,7 +192,7 @@ export function renderStatsUI(stats) {
     refreshBtn.onclick = () => {
       clearCache();
       updateCacheStatus();
-      window.location.reload();
+      globalThis.location.reload();
     };
   }
 

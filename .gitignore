@@ -38,3 +38,6 @@ README.md
 test-data/
 mock-raids.json
 *.raid-data.json
+
+# Docs
+docs/
