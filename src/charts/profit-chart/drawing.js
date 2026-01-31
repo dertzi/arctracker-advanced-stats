@@ -1,5 +1,5 @@
 import { fmtRaw } from "../../utils/dom.js";
-import { isGridEnabled } from "../../ui/renderer.js";
+import { isGridEnabled } from "../../ui/state.js";
 
 import { mapX, mapY } from "./data.js";
 
